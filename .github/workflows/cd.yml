@@ -32,6 +32,6 @@ jobs:
           key: ${{ secrets.SERVER_SSH_KEY }}
           port: '22'
           script: |
-            cd home/${{ secrets.SERVER_USER }}/book
+            cd /home/${{ secrets.SERVER_USER }}/book
             docker-compose down
             docker-compose up -d --build
