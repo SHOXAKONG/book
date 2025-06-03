@@ -1,0 +1,25 @@
+{% extends 'main.html' %}
+
+{% block content %}
+
+<section class="more">
+    <div class="container">
+        <h1 class="m-5 text-center">More About Authors</h1>
+        <div class="row g-5 mb-5">
+            {% for i in more %}
+            <div class="col-3">
+                <img src="{{ i.author_image.url }}" alt="" width="300px" height="400px" style="border-radius: 20px;">
+            </div>
+            <div class="col-9">
+                <h4>{{ i.fullname }}</h4>
+                <p>{{ i.about }}</p>
+                <a class="btn btn-primary" href="{% url 'author_books' i.id %}">
+                    Author Books
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+{% endblock %}

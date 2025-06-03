@@ -1,0 +1,15 @@
+{% extends 'main.html' %}
+
+{% block content %}
+    <section class="blogs">
+        <div class="container">
+            <h1 class="m-4 text-center">Blogs</h1>
+            {% for i in blogs %}
+                <h3>{{ i.title }}</h3>
+                <p>{{ i.about }}</p>
+                <p>{{ i.created }}</p>
+                <img src="{{ i.image.url }}" alt="My Most Anticipated Books of 2025" style="width: 1000px;;" class="mb-5">
+            {% endfor %}
+        </div>
+    </section>
+{% endblock %}

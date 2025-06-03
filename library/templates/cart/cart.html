@@ -1,0 +1,104 @@
+{% extends 'main.html' %}
+{% block content %}
+    <section class="cart-detail" style="height: 80vh">
+
+        <div class="container my-5">
+            <h1 class="mb-4 text-center">Cart</h1>
+            <div class="table-responsive">
+                <table class="table align-middle">
+                    <thead>
+                    <tr>
+                        <th class="text-uppercase">Type</th>
+                        <th class="text-uppercase">Item</th>
+                        <th class="text-uppercase">Price</th>
+                        <th class="text-uppercase">Quantity</th>
+                        <th class="text-uppercase">Remove</th>
+                    </tr>
+                    </thead>
+
+                    <tbody>
+                    {% for i in cart_items %}
+                        <tr>
+                        <td class="book_cover_page">
+                            <img src="{{ i.book.cover_image.url }}" alt="Book Cover" height="200px">
+                        </td>
+                        <td>
+                            <div class="d-flex align-items-start" style="flex-direction: column">
+                                <div>
+                                    <h6 class="mb-0">{{ i.book.title }}</h6>
+                                    <small class="text-muted">{{ i.book.author.fullname }}</small>
+                                </div>
+                            </div>
+                        </td>
+                        <td>${{ i.book.price }}</td>
+                        <td>
+                            <div class="d-flex align-items-center text-center">
+                                <a class="btn btn-outline-secondary btn-sm me-2"
+                                   href="{% url 'reduce_item' i.book_id %}">-</a>
+                                <h6>{{ i.book_count }}</h6>
+                                <a class="btn btn-outline-secondary btn-sm ms-2"
+                                   href="{% url 'add_more_books' i.book_id %}">
+                                    +
+                                </a>
+                            </div>
+                        </td>
+                        <td><a class="btn btn-danger" href="{% url 'remove_item' i.book.id %}">X</a></td>
+                    {% endfor %}
+
+                    </tr>
+                    </tbody>
+
+                </table>
+            </div>
+            <div class="row mt-4">
+                <div class="col-md-12">
+                    <div class="d-flex justify-content-end align-items-center mb-3">
+                        <h5 class="me-3 mb-0">SUBTOTAL:</h5>
+                        <h5 class="mb-0">${{ total_price }}</h5>
+                    </div>
+                    <div class="d-flex justify-content-end align-items-center mb-3">
+                        <h5 class="me-3 mb-0">TOTAL:</h5>
+                        <h5 class="mb-0">${{ total_price }}</h5>
+                    </div>
+                    <div class="d-flex justify-content-end">
+                        <a class="btn btn-dark me-2" href="{% url 'list_books' %}">Books</a>
+                        <button class="btn btn-dark me-2">CHECKOUT</button>
+                        <button class="btn btn-outline-secondary me-2">Shop Pay</button>
+                        <button class="btn btn-outline-secondary">G Pay</button>
+                        <a class="btn btn-outline-secondary me-2">Shop Pay</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <div class="modal fade" id="messageModal" tabindex="-1" aria-labelledby="messageModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="messageModalLabel">Xabar</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    {% for message in messages %}
+                        <p>{{ message }}</p>
+                    {% endfor %}
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Yopish</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if messages %}
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                var messageModal = new bootstrap.Modal(document.getElementById('messageModal'));
+                messageModal.show();
+            });
+        </script>
+    {% endif %}
+
+{% endblock %}
