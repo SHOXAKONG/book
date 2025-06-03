@@ -15,8 +15,6 @@ jobs:
                   POSTGRES_DB: bookshop
                   POSTGRES_USER: admin_user
                   POSTGRES_PASSWORD: 1234
-              ports:
-                  - 5432:5432
               options: >-
                   --health-cmd pd_isready
                   --health-interval 10s
@@ -26,7 +24,7 @@ jobs:
             DB_NAME: bookshop
             DB_USER: admin_user
             DB_PASSWORD: 1234
-            DB_HOST: localhost
+            DB_HOST: postgres
             DB_PORT: 5432
 
         steps:
