@@ -34,9 +34,12 @@ jobs:
           key: ${{ secrets.SERVER_SSH_KEY }}
           port: '22'
           script: |
-            cd /home/${{ secrets.SERVER_USER }}/book
-            # write the .env file from GitHub Secret
-            echo "${{ secrets.ENV }}" > .env
-            sudo docker-compose pull
-            sudo docker-compose down
-            sudo docker-compose up -d
+            echo "${{ secrets.ENV_FILE }}" > /home/${{ secrets.SERVER_USER }}/.env
+            sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/book:latest
+            sudo docker stop book || true
+            sudo docker rm book || true
+            sudo docker run -d --name book \
+              --env-file /home/${{ secrets.SERVER_USER }}/.env \
+              -p 8000:8000 \
+              ${{ secrets.DOCKERHUB_USERNAME }}/book:latest
+
