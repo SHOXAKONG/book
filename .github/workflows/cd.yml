@@ -34,7 +34,7 @@ jobs:
           key: ${{ secrets.SERVER_SSH_KEY }}
           port: '22'
           script: |
-            cd /home/${{ secrets.SERVER_USER }}/near
+            cd /home/${{ secrets.SERVER_USER }}/book
             # write the .env file from GitHub Secret
             echo "${{ secrets.ENV }}" > .env
             sudo docker-compose pull
