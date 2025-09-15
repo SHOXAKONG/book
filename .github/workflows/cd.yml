@@ -1,30 +1,32 @@
 name: CD
 
-
 on:
   push:
     branches:
       - main
 
-
 jobs:
-  deploy:
+  build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Copy Files to Server via SSH
-        uses: appleboy/scp-action@v0.1.4
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
         with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SERVER_SSH_KEY }}
-          port: '22'
-          source: "."
-          target: "/home/${{ secrets.SERVER_USER }}/book"
-      - name: Execute remote SSH commands
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/book:latest
+
+      - name: Deploy on server via SSH
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.SERVER_HOST }}
@@ -32,6 +34,7 @@ jobs:
           key: ${{ secrets.SERVER_SSH_KEY }}
           port: '22'
           script: |
-            cd /home/${{ secrets.SERVER_USER }}/book
-            docker-compose down
-            docker-compose up -d --build
+            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/book:latest
+            docker stop book || true
+            docker rm book || true
+            docker run -d --name book -p 8000:8000 ${{ secrets.DOCKERHUB_USERNAME }}/book:latest
