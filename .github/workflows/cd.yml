@@ -39,24 +39,16 @@ jobs:
           key: ${{ secrets.SERVER_SSH_KEY }}
           port: 22
           script: |
-            # Write environment variables to .env file on server
-            echo "${{ secrets.ENV_FILE }}" > /home/${{ secrets.SERVER_USER }}/book.env
+            cd /home/${{ secrets.SERVER_USER }}/book
+            
+            # Write environment variables to .env file
+            echo "${{ secrets.ENV }}" > .env
 
-            # Pull latest image
-            sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/book:latest
+            # Bring down old containers
+            sudo docker-compose down
 
-            # Stop and remove old container if exists
-            if [ "$(sudo docker ps -q -f name=book)" ]; then
-              sudo docker stop book
-            fi
-            if [ "$(sudo docker ps -aq -f name=book)" ]; then
-              sudo docker rm book
-            fi
+            # Pull latest image (optional but good practice)
+            sudo docker-compose pull
 
-            # Run container with .env file
-            sudo docker run -d \
-              --name book \
-              --env-file /home/${{ secrets.SERVER_USER }}/book.env \
-              -p 8000:8000 \
-              --restart always \
-              ${{ secrets.DOCKERHUB_USERNAME }}/book:latest
+            # Rebuild and start containers in detached mode
+            sudo docker-compose up -d --build
