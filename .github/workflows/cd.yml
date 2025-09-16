@@ -19,11 +19,15 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Build and push Docker image
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and push multi-arch Docker image
         uses: docker/build-push-action@v5
         with:
           context: .
           push: true
+          platforms: linux/amd64,linux/arm64
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/book:latest
 
       - name: Deploy on server via SSH
@@ -42,4 +46,3 @@ jobs:
               --env-file /home/${{ secrets.SERVER_USER }}/.env \
               -p 8000:8000 \
               ${{ secrets.DOCKERHUB_USERNAME }}/book:latest
-
