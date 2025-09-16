@@ -11,7 +11,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Log in to Docker Hub
         uses: docker/login-action@v3
@@ -28,7 +28,8 @@ jobs:
           context: .
           push: true
           platforms: linux/amd64,linux/arm64
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/book:latest
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/book:latest
 
       - name: Deploy on server via SSH
         uses: appleboy/ssh-action@v1.0.3
@@ -36,13 +37,26 @@ jobs:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
-          port: '22'
+          port: 22
           script: |
-            echo "${{ secrets.ENV_FILE }}" > /home/${{ secrets.SERVER_USER }}/.env
+            # Write environment variables to .env file on server
+            echo "${{ secrets.ENV_FILE }}" > /home/${{ secrets.SERVER_USER }}/book.env
+
+            # Pull latest image
             sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/book:latest
-            sudo docker stop book || true
-            sudo docker rm book || true
-            sudo docker run -d --name book \
-              --env-file /home/${{ secrets.SERVER_USER }}/.env \
+
+            # Stop and remove old container if exists
+            if [ "$(sudo docker ps -q -f name=book)" ]; then
+              sudo docker stop book
+            fi
+            if [ "$(sudo docker ps -aq -f name=book)" ]; then
+              sudo docker rm book
+            fi
+
+            # Run container with .env file
+            sudo docker run -d \
+              --name book \
+              --env-file /home/${{ secrets.SERVER_USER }}/book.env \
               -p 8000:8000 \
+              --restart always \
               ${{ secrets.DOCKERHUB_USERNAME }}/book:latest
